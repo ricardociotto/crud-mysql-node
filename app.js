@@ -70,7 +70,96 @@ process.on('SIGINT', () => {
   });
 });
 
+app.get('/books', (req, res) => {
+  const sql = "SELECT * FROM books"
+
+  pool.query(sql, (err, data) => {
+      if(err){
+          console.log(err);
+          return;
+      };
+
+      const books = data;
+      console.log(books);
+
+      res.render('books', { books })
+  });
+});
+
+app.get('/books/:id', (req, res) => {
+  const id = req.params.id
+
+  const sql = `SELECT * FROM books WHERE ?? = ?`
+  const data = ['id', id];
+
+  pool.query(sql, data, (err, data) => {
+    if (err) {
+      console.log(err)
+    }
+
+    const book = data[0]
+
+    console.log(data[0])
+
+    res.render('book', { book })
+  });
+});
+
+app.get('/books/edit/:id',(req, res) => {
+  const id = req.params.id
+
+  const sql = `SELECT * FROM books WHERE ?? = ?`
+  const data = ['id', id];
+
+  pool.query(sql, data, (err, data) => {
+    if (err) {
+      console.log(err)
+    }
+
+    const book = data[0]
+
+    res.render('editbook', { book })
+  });
+});
+
+app.post('/books/updatebook', (req, res) => {
+  const id = req.body.id;
+  const title = req.body.title;
+  const pageqty = req.body.pageqty;
+
+  const sql = `UPDATE books SET ?? = ?, ?? = ? WHERE ?? = ?`
+  const data = ['title', title, 'pageqty', pageqty, 'id', id];
+
+  pool.query(sql, data, (err) => {
+      if(err){
+          console.log(err)
+          return
+      }
+
+      res.redirect('/books')
+  });
+});
+
+app.post('/books/remove/:id', (req, res) => {
+  const id = req.params.id
+
+  const sql = `DELETE FROM books WHERE ? = ??`
+  const data = ['id', id];
+
+  pool.query(sql, data, (err) => {
+      if(err){
+          console.log(err)
+          return;
+      }
+
+      res.redirect('/books');
+  })
+});
+
+app.use((req, res) => {
+  res.status(404).send('404 Not Found');
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
-
